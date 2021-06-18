@@ -35,6 +35,8 @@ public class PlayerLocomotion : MonoBehaviour
 
     private void Start()
     {
+        Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     // Update is called once per frame
@@ -42,6 +44,7 @@ public class PlayerLocomotion : MonoBehaviour
     {
         CheckForGrounded();
         HandleMovement(InputHandler.Instance.moveInput);
+        HandleBufferedInputs();
 
         animator.SetBool("IsSprinting", InputHandler.Instance.isSprinting);
         animator.SetFloat("Horizontal", InputHandler.Instance.moveInput.x, 1f, Time.deltaTime * 5f);
@@ -59,7 +62,6 @@ public class PlayerLocomotion : MonoBehaviour
     private void OnEnable()
     {
         InputHandler.Instance.playerInput.actions["Jump"].performed += _ => OnJump();
-        InputHandler.Instance.playerInput.actions["Dodge"].performed += _ => OnDodge();
         InputHandler.Instance.playerInput.actions["Aim"].started += _ => OnPlayerAim(true);
         InputHandler.Instance.playerInput.actions["Aim"].canceled += _ => OnPlayerAim(false);
     }
@@ -69,7 +71,6 @@ public class PlayerLocomotion : MonoBehaviour
         if (InputHandler.Instance != null)
         {
             InputHandler.Instance.playerInput.actions["Jump"].performed -= _ => OnJump();
-            InputHandler.Instance.playerInput.actions["Dodge"].performed -= _ => OnDodge();
             InputHandler.Instance.playerInput.actions["Aim"].canceled -= _ => OnPlayerAim(false);
             InputHandler.Instance.playerInput.actions["Aim"].started -= _ => OnPlayerAim(false);
         }
@@ -122,7 +123,7 @@ public class PlayerLocomotion : MonoBehaviour
         {
             targetRotation = Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0);
         }
-        else if (input.magnitude > 0)
+        else if (move.magnitude > 0)
         {
             targetRotation = Quaternion.LookRotation(move);
         }
@@ -137,6 +138,21 @@ public class PlayerLocomotion : MonoBehaviour
         else
         {
             animator.SetBool("IsGrounded", false);
+        }
+    }
+
+    private void HandleBufferedInputs()
+    {
+        InputBufferAction.ActionName action = InputHandler.Instance.TryBufferedAction();
+
+        if (action == InputBufferAction.ActionName.None)
+        {
+            return;
+        }
+
+        if (action == InputBufferAction.ActionName.Dodge)
+        {
+            HandleDodge();
         }
     }
 
@@ -171,18 +187,25 @@ public class PlayerLocomotion : MonoBehaviour
         isJumping = true;
     }
 
-    private void OnDodge()
+    private void HandleDodge()
     {
-        if (animator.GetBool("IsInteracting") || animator.GetBool("IsDodging") || !isGrounded)
+        if (animator.GetBool("IsInteracting") || animator.GetBool("IsDodging"))
         {
             return;
         }
 
+        InputHandler.Instance.UseBufferedAction(InputBufferAction.ActionName.Dodge);
         animator.SetBool("IsDodging", true);
 
         // TODO: Create method to get current dir vector based on camera, used above as well
         dodgeDir = new Vector3(InputHandler.Instance.moveInput.x, 0, InputHandler.Instance.moveInput.y);
         dodgeDir = dodgeDir.x * cameraTransform.right.normalized + dodgeDir.z * cameraTransform.forward.normalized;
+
+        // If we are standing still, roll in place where we are facing
+        if (dodgeDir == Vector3.zero)
+        {
+            dodgeDir = cameraTransform.forward;
+        }
     }
 
     private void OnPlayerAim(bool test)
