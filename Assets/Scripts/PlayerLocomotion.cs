@@ -178,7 +178,7 @@ public class PlayerLocomotion : MonoBehaviour
 
     private void OnJump()
     {
-        if (!isGrounded || animator.GetBool("IsInteracting"))
+        if (!isGrounded || animator.GetBool("IsInteracting") || isJumping)
         {
             return;
         }

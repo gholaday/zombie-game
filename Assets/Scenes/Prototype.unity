@@ -8011,6 +8011,10 @@ PrefabInstance:
       value: Player
       objectReference: {fileID: 0}
     - target: {fileID: 749559422043581394, guid: 51d7da259c98c0e47962d11fde899bb2, type: 3}
+      propertyPath: rollSpeed
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 749559422043581394, guid: 51d7da259c98c0e47962d11fde899bb2, type: 3}
       propertyPath: sprintSpeed
       value: 7
       objectReference: {fileID: 0}
