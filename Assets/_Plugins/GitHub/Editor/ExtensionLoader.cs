@@ -56,7 +56,6 @@ namespace GitHub.Unity
                 //ExtensionLoader.instance.Initialized = true;
                 AssetDatabase.SaveAssets();
             }
-
         }
 
         private static void ToggleAssemblies()
@@ -79,7 +78,7 @@ namespace GitHub.Unity
                 PluginImporter importer = AssetImporter.GetAtPath(filepath) as PluginImporter;
                 if (importer == null)
                 {
-                    Debug.LogFormat("GitHub for Unity: Could not find importer for {0}. Some functionality may fail.", filepath);
+                    //Debug.LogFormat("GitHub for Unity: Could not find importer for {0}. Some functionality may fail.", filepath);
                     continue;
                 }
                 if (importer.GetCompatibleWithEditor() != enable)
