@@ -162,7 +162,6 @@ Shader "SyntyStudios/Triplanar"
 		}
 	}
 	Fallback "Diffuse"
-	CustomEditor "ASEMaterialInspector"
 }
 /*ASEBEGIN
 Version=16900

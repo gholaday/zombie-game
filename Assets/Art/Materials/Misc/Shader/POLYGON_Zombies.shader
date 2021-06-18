@@ -58,7 +58,6 @@ Shader "SyntyStudios/Blood"
 		ENDCG
 	}
 	Fallback "Diffuse"
-	CustomEditor "ASEMaterialInspector"
 }
 /*ASEBEGIN
 Version=16900
