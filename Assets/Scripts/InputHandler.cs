@@ -8,7 +8,7 @@ public class InputHandler : Singleton<InputHandler>
     public PlayerInput playerInput;
     public Vector2 moveInput;
     public bool isSprinting = false;
-    public bool isAiming = false;
+    public bool aimHeld = false;
 
     public List<InputBufferAction> inputBuffer = new List<InputBufferAction>();
 
@@ -59,12 +59,12 @@ public class InputHandler : Singleton<InputHandler>
 
     private void OnSprint(InputValue value)
     {
-        isSprinting = value.isPressed && moveInput.y > 0;
+        isSprinting = value.isPressed && moveInput.y > 0 && !aimHeld;
     }
 
     private void OnAim(InputValue value)
     {
-        isAiming = value.isPressed;
+        aimHeld = value.isPressed;
     }
 
     private void OnDodge(InputValue value)

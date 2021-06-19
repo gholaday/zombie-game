@@ -2,18 +2,26 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Animations.Rigging;
+using Cinemachine;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerLocomotion : MonoBehaviour
 {
     public Transform[] groundedChecks = new Transform[0];
 
+    public List<Rig> aimingRigs = new List<Rig>(); //TODO: Maybe move this and other aiming logic to seperate aiming component?
+
+    public CinemachineVirtualCamera aimCam;
+
     public float moveSpeed = 3f;
+    public float strafeSpeed = 2f;
     public float rotationSpeed = 10.0f;
     public float jumpHeight = 5f;
     public float sprintSpeed = 5f;
     public float backupSpeedModifier = .5f;
     public float rollSpeed = 5f;
+    public float aimDuration = .3f;
 
     private Animator animator;
     private CharacterController controller;
@@ -25,6 +33,7 @@ public class PlayerLocomotion : MonoBehaviour
 
     private bool isJumping = false;
     private bool isGrounded = false;
+    private bool isAiming = false;
 
     private void Awake()
     {
@@ -35,18 +44,21 @@ public class PlayerLocomotion : MonoBehaviour
 
     private void Start()
     {
-        Cursor.visible = false;
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
     }
 
     // Update is called once per frame
     private void Update()
     {
         CheckForGrounded();
+        HandleAiming();
         HandleMovement(InputHandler.Instance.moveInput);
         HandleBufferedInputs();
 
+        isAiming = InputHandler.Instance.aimHeld && !animator.GetBool("IsDodging");
         animator.SetBool("IsSprinting", InputHandler.Instance.isSprinting);
+        animator.SetBool("IsAiming", isAiming);
         animator.SetFloat("Horizontal", InputHandler.Instance.moveInput.x, 1f, Time.deltaTime * 5f);
         animator.SetFloat("Vertical", InputHandler.Instance.moveInput.y, 1f, Time.deltaTime * 5f);
     }
@@ -76,23 +88,43 @@ public class PlayerLocomotion : MonoBehaviour
         }
     }
 
+    private void HandleAiming()
+    {
+        if (isAiming)
+        {
+            aimCam.Priority = 12;
+            foreach (Rig rig in aimingRigs)
+            {
+                rig.weight += Time.deltaTime / aimDuration;
+            }
+        }
+        else
+        {
+            aimCam.Priority = 8;
+            foreach (Rig rig in aimingRigs)
+            {
+                rig.weight -= Time.deltaTime / aimDuration;
+            }
+        }
+    }
+
     private void HandleMovement(Vector2 input)
     {
         Vector3 move = new Vector3(input.x, 0, input.y);
         float adjustedPlayerSpeed = moveSpeed;
+
+        move = move.x * cameraTransform.right.normalized + move.z * cameraTransform.forward.normalized;
 
         if (InputHandler.Instance.isSprinting)
         {
             adjustedPlayerSpeed = sprintSpeed;
             move.x = 0;
         }
-        //else if (input.y < 0)
-        //{
-        //    adjustedPlayerSpeed *= backupSpeedModifier;
-        //}
 
-        move = move.x * cameraTransform.right.normalized + move.z * cameraTransform.forward.normalized;
-        move.y = 0;
+        if (isAiming && !animator.GetBool("IsDodging"))
+        {
+            adjustedPlayerSpeed = strafeSpeed;
+        }
 
         // Changes the height position of the player..
         if (isJumping)
@@ -101,12 +133,14 @@ public class PlayerLocomotion : MonoBehaviour
             isJumping = false;
         }
 
+        Debug.DrawRay(transform.position + Vector3.up * 2, move, Color.red);
+        Debug.DrawRay(transform.position + Vector3.up * 2, dodgeDir, Color.green);
+
         velocity.y -= 9.81f * 2 * Time.deltaTime;
 
         if (animator.GetBool("IsDodging"))
         {
             move = dodgeDir;
-            move.y = 0;
             dodgeModifier = rollSpeed;
         }
         else
@@ -115,11 +149,12 @@ public class PlayerLocomotion : MonoBehaviour
             dodgeModifier = 1;
         }
 
+        move.y = 0;
         controller.Move(adjustedPlayerSpeed * Time.deltaTime * move.normalized * dodgeModifier + velocity * Time.deltaTime);
 
         Quaternion targetRotation = transform.rotation;
 
-        if (animator.GetBool("IsAiming"))
+        if (isAiming)
         {
             targetRotation = Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0);
         }
@@ -197,6 +232,13 @@ public class PlayerLocomotion : MonoBehaviour
         InputHandler.Instance.UseBufferedAction(InputBufferAction.ActionName.Dodge);
         animator.SetBool("IsDodging", true);
 
+        foreach (Rig rig in aimingRigs)
+        {
+            rig.weight = 0;
+        }
+
+        //Invoke("SlowTime", .3f);
+
         // TODO: Create method to get current dir vector based on camera, used above as well
         dodgeDir = new Vector3(InputHandler.Instance.moveInput.x, 0, InputHandler.Instance.moveInput.y);
         dodgeDir = dodgeDir.x * cameraTransform.right.normalized + dodgeDir.z * cameraTransform.forward.normalized;
@@ -206,6 +248,11 @@ public class PlayerLocomotion : MonoBehaviour
         {
             dodgeDir = cameraTransform.forward;
         }
+    }
+
+    private void SlowTime()
+    {
+        Time.timeScale = Mathf.Epsilon;
     }
 
     private void OnPlayerAim(bool test)
