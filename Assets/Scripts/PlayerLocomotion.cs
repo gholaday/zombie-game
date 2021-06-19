@@ -113,8 +113,6 @@ public class PlayerLocomotion : MonoBehaviour
         Vector3 move = new Vector3(input.x, 0, input.y);
         float adjustedPlayerSpeed = moveSpeed;
 
-        move = move.x * cameraTransform.right.normalized + move.z * cameraTransform.forward.normalized;
-
         if (InputHandler.Instance.isSprinting)
         {
             adjustedPlayerSpeed = sprintSpeed;
@@ -133,8 +131,7 @@ public class PlayerLocomotion : MonoBehaviour
             isJumping = false;
         }
 
-        Debug.DrawRay(transform.position + Vector3.up * 2, move, Color.red);
-        Debug.DrawRay(transform.position + Vector3.up * 2, dodgeDir, Color.green);
+        move = move.x * cameraTransform.right.normalized + move.z * cameraTransform.forward.normalized;
 
         velocity.y -= 9.81f * 2 * Time.deltaTime;
 
@@ -154,7 +151,7 @@ public class PlayerLocomotion : MonoBehaviour
 
         Quaternion targetRotation = transform.rotation;
 
-        if (isAiming)
+        if (isAiming || InputHandler.Instance.isSprinting)
         {
             targetRotation = Quaternion.Euler(0, cameraTransform.eulerAngles.y, 0);
         }
