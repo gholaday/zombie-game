@@ -51,7 +51,7 @@
                     "id": "8ce023df-78fe-49ee-9ebf-13378727e4c8",
                     "expectedControlType": "Button",
                     "processors": "",
-                    "interactions": ""
+                    "interactions": "Press(behavior=2)"
                 },
                 {
                     "name": "Sprint",
