@@ -6,7 +6,7 @@ public class EquipHandler : MonoBehaviour
 {
     public Animator rigAnimator;
 
-    public Transform weaponPivot;
+    public Transform weaponParent;
     public GameObject weaponPrefab;
 
     private PlayerLocomotion playerState; // TODO: Replace this with state machine class
@@ -28,16 +28,30 @@ public class EquipHandler : MonoBehaviour
     {
         if (isEquipped)
         {
-            Destroy(equippedWeapon.gameObject); ;
-            rigAnimator.Play("weapon_unarmed");
+            Destroy(equippedWeapon.gameObject);
+            rigAnimator.Play("weapon_unarmed", 0, .1f);
         }
         else
         {
-            RaycastWeapon weapon = Instantiate(weaponPrefab, weaponPivot).GetComponent<RaycastWeapon>();
-            equippedWeapon = weapon;
             rigAnimator.Play("weapon_equip_idle_rifle");
+            //Time.timeScale = .1f;
+
+            StartCoroutine(SpawnWeapon());
         }
 
         isEquipped = !isEquipped;
+    }
+
+    private IEnumerator SpawnWeapon()
+    {
+        yield return new WaitForSeconds(.1f);
+
+        RaycastWeapon weapon = Instantiate(weaponPrefab, weaponParent).GetComponent<RaycastWeapon>();
+
+        //LeanTween.alpha(weapon.gameObject, 0, 0);
+        //LeanTween.alpha(weapon.gameObject, 1, .1f);
+        weapon.transform.localPosition = Vector3.zero;
+        weapon.transform.localRotation = Quaternion.identity;
+        equippedWeapon = weapon;
     }
 }
