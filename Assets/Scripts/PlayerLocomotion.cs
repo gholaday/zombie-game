@@ -8,9 +8,18 @@ using Cinemachine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerLocomotion : MonoBehaviour
 {
+    [Header("Debug")]
+    public bool disableBodyAim = false;
+
+    public bool alwaysEnableAim = false;
+
     public Transform[] groundedChecks = new Transform[0];
 
-    public List<Rig> aimingRigs = new List<Rig>(); //TODO: Move IK logic into its own component
+    //public List<Rig> aimingRigs = new List<Rig>(); //TODO: Move IK logic into its own component
+    public Rig bodyAimRig;
+
+    [Tooltip("The angle between the player and camera forward vector. Body aim will smooth out when this angle is exceeded. 0 is directly in front, 180 is directly behind")]
+    public float bodyAimCameraThreshold = 150f;
 
     public CinemachineVirtualCamera aimCam;
 
@@ -23,9 +32,6 @@ public class PlayerLocomotion : MonoBehaviour
     public float rollSpeed = 5f;
     public float aimDuration = .3f;
 
-    public Transform weaponPivot;
-    public RaycastWeapon equippedWeapon;
-
     private Animator animator;
     private CharacterController controller;
     private Transform cameraTransform;
@@ -36,7 +42,7 @@ public class PlayerLocomotion : MonoBehaviour
 
     private bool isJumping = false; // TODO: Move state machine logic into its own component
     private bool isGrounded = false;
-    private bool isAiming = false;
+    public bool isAiming = false;
 
     private void Awake()
     {
@@ -49,8 +55,6 @@ public class PlayerLocomotion : MonoBehaviour
     {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
-
-        EquipWeapon();
     }
 
     // Update is called once per frame
@@ -61,21 +65,21 @@ public class PlayerLocomotion : MonoBehaviour
         HandleMovement(InputHandler.Instance.moveInput);
         HandleBufferedInputs();
 
-        isAiming = InputHandler.Instance.aimHeld && !animator.GetBool("IsDodging");
-
+        isAiming = alwaysEnableAim || (InputHandler.Instance.aimHeld && !animator.GetBool("IsDodging"));
+        //isAiming = true;
         // TODO: Move this to its own class
 
-        if (equippedWeapon != null)
-        {
-            if (isAiming)
-            {
-                equippedWeapon.UpdateFiring(Time.deltaTime);
-            }
-            else
-            {
-                equippedWeapon.StopFiring();
-            }
-        }
+        //if (equippedWeapon != null)
+        //{
+        //    if (isAiming)
+        //    {
+        //        equippedWeapon.UpdateFiring(Time.deltaTime);
+        //    }
+        //    else
+        //    {
+        //        equippedWeapon.StopFiring();
+        //    }
+        //}
 
         animator.SetBool("IsSprinting", InputHandler.Instance.isSprinting);
         animator.SetBool("IsAiming", isAiming);
@@ -110,28 +114,33 @@ public class PlayerLocomotion : MonoBehaviour
         if (isAiming)
         {
             aimCam.Priority = 12;
-            foreach (Rig rig in aimingRigs)
-            {
-                rig.weight += Time.deltaTime / aimDuration;
-            }
+            //foreach (Rig rig in aimingRigs)
+            //{
+            //    rig.weight += Time.deltaTime / aimDuration;
+            //}
         }
         else
         {
             aimCam.Priority = 8;
-            foreach (Rig rig in aimingRigs)
+            //foreach (Rig rig in aimingRigs)
+            //{
+            //    rig.weight -= Time.deltaTime / aimDuration;
+            //}
+        }
+
+        if (!disableBodyAim)
+        {
+            float camRotY = Vector3.Angle(transform.forward, cameraTransform.forward);
+
+            if (camRotY <= bodyAimCameraThreshold)
             {
-                rig.weight -= Time.deltaTime / aimDuration;
+                bodyAimRig.weight += Time.deltaTime / 0.3f;
+            }
+            else
+            {
+                bodyAimRig.weight -= Time.deltaTime / 0.3f;
             }
         }
-    }
-
-    private void EquipWeapon()
-    {
-        RaycastWeapon weap = FindObjectOfType<RaycastWeapon>();
-
-        equippedWeapon = weap;
-        equippedWeapon.gameObject.transform.SetParent(weaponPivot);
-        equippedWeapon.gameObject.transform.localPosition = Vector3.zero;
     }
 
     private void OnShoot(InputValue value)
@@ -141,20 +150,20 @@ public class PlayerLocomotion : MonoBehaviour
             return;
         }
 
-        if (value.isPressed)
-        {
-            if (equippedWeapon != null)
-            {
-                equippedWeapon.StartFiring();
-            }
-        }
-        else
-        {
-            if (equippedWeapon != null)
-            {
-                equippedWeapon.StopFiring();
-            }
-        }
+        //if (value.isPressed)
+        //{
+        //    if (equippedWeapon != null)
+        //    {
+        //        equippedWeapon.StartFiring();
+        //    }
+        //}
+        //else
+        //{
+        //    if (equippedWeapon != null)
+        //    {
+        //        equippedWeapon.StopFiring();
+        //    }
+        //}
     }
 
     private void HandleMovement(Vector2 input)
@@ -278,10 +287,10 @@ public class PlayerLocomotion : MonoBehaviour
         InputHandler.Instance.UseBufferedAction(InputBufferAction.ActionName.Dodge);
         animator.SetBool("IsDodging", true);
 
-        foreach (Rig rig in aimingRigs)
-        {
-            rig.weight = 0;
-        }
+        //foreach (Rig rig in aimingRigs)
+        //{
+        //    rig.weight = 0;
+        //}
 
         // TODO: Create method to get current dir vector based on camera, used above as well
         dodgeDir = new Vector3(InputHandler.Instance.moveInput.x, 0, InputHandler.Instance.moveInput.y);
