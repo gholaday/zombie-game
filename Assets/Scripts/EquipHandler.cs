@@ -10,15 +10,19 @@ namespace ZombieGame
         public Animator rigAnimator;
         public Transform weaponParent;
 
+        public Weapon equippedWeapon;
+
         public Weapon tempWeapon;
         public Weapon tempWeapon2;
 
         private PlayerLocomotion playerState; // TODO: Replace this with state machine class
-        private Weapon equippedWeapon;
 
         private void Awake()
         {
             playerState = gameObject.GetComponent<PlayerLocomotion>();
+
+            tempWeapon = Instantiate(tempWeapon);
+            tempWeapon2 = Instantiate(tempWeapon2);
         }
 
         private void Update()
@@ -64,11 +68,19 @@ namespace ZombieGame
             EquipWeapon(tempWeapon2);
         }
 
+        public void OnReload()
+        {
+            if (equippedWeapon != null)
+            {
+                equippedWeapon.runtime.weaponHook.Reload();
+            }
+        }
+
         public void EquipWeapon(Weapon weapon)
         {
             if (equippedWeapon != null)
             {
-                equippedWeapon.DestroyRuntime();
+                equippedWeapon.UnEquip();
             }
 
             if (equippedWeapon == weapon)
@@ -88,7 +100,7 @@ namespace ZombieGame
         {
             yield return new WaitForSeconds(.1f);
 
-            weapon.Init(weaponParent, Vector3.zero, Quaternion.identity);
+            weapon.Equip(weaponParent);
         }
     }
 }

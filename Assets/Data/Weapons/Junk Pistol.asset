@@ -12,10 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 825432e8135ffee409779ba841a1ecf4, type: 3}
   m_Name: Junk Pistol
   m_EditorClassIdentifier: 
+  currentAmmoInMagazine: 30
   magazineSize: 15
   fireRate: 3
   fixedFireRate: 0
+  reloadTime: 0.5
   animationIdleName: weapon_equip_idle_pistol
   animationRecoilName: weapon_recoil_pistol
   modelPrefab: {fileID: 8078410952196749239, guid: f531175ceaddf3042b3550cc6f95ed3f, type: 3}
   bulletHolePrefab: {fileID: 9039803480669610885, guid: c1e42b228cb2a524f8f93c5ae5d07961, type: 3}
+  reloadEvent: {fileID: 11400000, guid: 555261616bb52a644be64d7d6f5bcc20, type: 2}

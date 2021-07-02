@@ -5,15 +5,19 @@ using UnityEngine;
 namespace ZombieGame
 {
     [CreateAssetMenu(menuName = "Items/Weapon")]
+    [System.Serializable]
     public class Weapon : Item
     {
         [Header("Weapon Data")]
+        public int currentAmmoInMagazine = 30;
+
         public int magazineSize = 30;
 
         [Tooltip("Bullets fired per second")]
         public float fireRate = 0.2f;
 
         public bool fixedFireRate = false;
+        public float reloadTime = .5f;
 
         [Header("Animation")]
         public string animationIdleName;
@@ -24,10 +28,11 @@ namespace ZombieGame
         public GameObject modelPrefab;
 
         public GameObject bulletHolePrefab;
+        public FloatGameEvent reloadEvent;
 
         public RuntimeWeapon runtime;
 
-        public void Init(Transform parent, Vector3 position, Quaternion rotation)
+        public void Equip(Transform parent)
         {
             runtime = new RuntimeWeapon();
             runtime.modelInstance = Instantiate(modelPrefab, parent) as GameObject;
@@ -36,9 +41,10 @@ namespace ZombieGame
             runtime.weaponHook.Init();
         }
 
-        public void DestroyRuntime()
+        public void UnEquip()
         {
             Destroy(runtime.modelInstance);
+            runtime = null;
         }
 
         public class RuntimeWeapon

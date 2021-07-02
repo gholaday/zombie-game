@@ -18,6 +18,9 @@ namespace ZombieGame
 
         private float accumulatedTime;
         private bool canShoot = false;
+        private bool isReloading = false;
+
+        private int totalAmmoCount = 100;
 
         public void Init()
         {
@@ -36,7 +39,8 @@ namespace ZombieGame
             if (canShoot)
             {
                 float fireInterval = 1.0f / weaponData.fireRate;
-                while (accumulatedTime <= 0.0f)
+
+                while (accumulatedTime <= 0.0f && !isReloading && weaponData.currentAmmoInMagazine > 0)
                 {
                     FireBullet();
                     accumulatedTime += fireInterval;
@@ -56,6 +60,8 @@ namespace ZombieGame
 
         private void FireBullet()
         {
+            weaponData.currentAmmoInMagazine--;
+
             foreach (ParticleSystem ps in weaponParticles)
             {
                 ps.Play();
@@ -86,6 +92,45 @@ namespace ZombieGame
                     }
                 }
             }
+        }
+
+        public void Reload()
+        {
+            StartCoroutine(DoReload());
+        }
+
+        private IEnumerator DoReload()
+        {
+            if (isReloading || weaponData.currentAmmoInMagazine == weaponData.magazineSize)
+            {
+                yield break;
+            }
+
+            isReloading = true;
+            accumulatedTime = 0;
+
+            if (totalAmmoCount > 0 && weaponData.currentAmmoInMagazine < weaponData.magazineSize)
+            {
+                weaponData.reloadEvent?.Raise(weaponData.reloadTime);
+
+                yield return new WaitForSeconds(weaponData.reloadTime);
+
+                int ammoNeeded = weaponData.magazineSize - weaponData.currentAmmoInMagazine;
+
+                totalAmmoCount -= ammoNeeded;
+
+                if (totalAmmoCount < 0)
+                {
+                    weaponData.currentAmmoInMagazine = ammoNeeded + totalAmmoCount; //totalAmmoCount will be NEGATIVE
+                    totalAmmoCount = 0;
+                }
+                else
+                {
+                    weaponData.currentAmmoInMagazine = weaponData.magazineSize;
+                }
+            }
+
+            isReloading = false;
         }
 
         private void Recoil()

@@ -4,8 +4,5 @@ using UnityEngine;
 
 namespace ZombieGame
 {
-    [System.Serializable]
-    public abstract class Item : ScriptableObject
-    {
-    }
+    public class FloatGameEventListener : GameEventListener<float, FloatGameEvent, FloatUnityEvent> { }
 }

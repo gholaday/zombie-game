@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace ZombieGame
 {
-    [System.Serializable]
-    public abstract class Item : ScriptableObject
+    public interface IGameEventListener<T>
     {
+        void OnEventRaised(T data);
     }
 }

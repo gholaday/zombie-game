@@ -4,8 +4,5 @@ using UnityEngine;
 
 namespace ZombieGame
 {
-    [System.Serializable]
-    public abstract class Item : ScriptableObject
-    {
-    }
+    [System.Serializable] public struct Void { }
 }
