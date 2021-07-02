@@ -29,7 +29,7 @@ namespace ZombieGame
             {
                 if (!playerState.isAiming)
                 {
-                    equippedWeapon.runtime.weaponHook.SetCanShoot(false);
+                    equippedWeapon.runtime?.weaponHook.SetCanShoot(false);
                 }
             }
         }
@@ -45,11 +45,11 @@ namespace ZombieGame
             {
                 if (value.isPressed)
                 {
-                    equippedWeapon.runtime.weaponHook.SetCanShoot(true);
+                    equippedWeapon.runtime?.weaponHook.SetCanShoot(true);
                 }
                 else
                 {
-                    equippedWeapon.runtime.weaponHook.SetCanShoot(false);
+                    equippedWeapon.runtime?.weaponHook.SetCanShoot(false);
                 }
             }
         }
@@ -59,22 +59,36 @@ namespace ZombieGame
             EquipWeapon(tempWeapon);
         }
 
+        public void OnEquipSecondary()
+        {
+            EquipWeapon(tempWeapon2);
+        }
+
         public void EquipWeapon(Weapon weapon)
         {
             if (equippedWeapon != null)
             {
                 equippedWeapon.DestroyRuntime();
-                rigAnimator.Play("weapon_unarmed", 0, .1f);
+            }
 
+            if (equippedWeapon == weapon)
+            {
                 equippedWeapon = null;
+                rigAnimator.Play("weapon_unarmed", 0, .1f);
             }
             else
             {
                 rigAnimator.Play(weapon.animationIdleName);
-                weapon.Init(weaponParent, Vector3.zero, Quaternion.identity);
-
+                StartCoroutine(SpawnWeapon(weapon));
                 equippedWeapon = weapon;
             }
+        }
+
+        private IEnumerator SpawnWeapon(Weapon weapon)
+        {
+            yield return new WaitForSeconds(.1f);
+
+            weapon.Init(weaponParent, Vector3.zero, Quaternion.identity);
         }
     }
 }

@@ -108,6 +108,14 @@
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
+                },
+                {
+                    "name": "EquipSecondary",
+                    "type": "Button",
+                    "id": "ed795f3c-68f4-4408-864c-c7a2c2675f7b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
                 }
             ],
             "bindings": [
@@ -295,6 +303,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "EquipPrimary",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b726eb44-f222-4059-97d6-45b4d3592a8b",
+                    "path": "<Keyboard>/2",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "EquipSecondary",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
