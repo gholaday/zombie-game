@@ -1,57 +1,80 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class EquipHandler : MonoBehaviour
+namespace ZombieGame
 {
-    public Animator rigAnimator;
-
-    public Transform weaponParent;
-    public GameObject weaponPrefab;
-
-    private PlayerLocomotion playerState; // TODO: Replace this with state machine class
-    private RaycastWeapon equippedWeapon;
-
-    private bool isEquipped = false;
-
-    private void Awake()
+    public class EquipHandler : MonoBehaviour
     {
-        playerState = gameObject.GetComponent<PlayerLocomotion>();
-    }
+        public Animator rigAnimator;
+        public Transform weaponParent;
 
-    private void Update()
-    {
-        rigAnimator.SetBool("isAiming", playerState.isAiming);
-    }
+        public Weapon tempWeapon;
+        public Weapon tempWeapon2;
 
-    public void OnEquipPrimary()
-    {
-        if (isEquipped)
+        private PlayerLocomotion playerState; // TODO: Replace this with state machine class
+        private Weapon equippedWeapon;
+
+        private void Awake()
         {
-            Destroy(equippedWeapon.gameObject);
-            rigAnimator.Play("weapon_unarmed", 0, .1f);
-        }
-        else
-        {
-            rigAnimator.Play("weapon_equip_idle_rifle");
-            //Time.timeScale = .1f;
-
-            StartCoroutine(SpawnWeapon());
+            playerState = gameObject.GetComponent<PlayerLocomotion>();
         }
 
-        isEquipped = !isEquipped;
-    }
+        private void Update()
+        {
+            rigAnimator.SetBool("isAiming", playerState.isAiming);
 
-    private IEnumerator SpawnWeapon()
-    {
-        yield return new WaitForSeconds(.1f);
+            if (equippedWeapon != null)
+            {
+                if (!playerState.isAiming)
+                {
+                    equippedWeapon.runtime.weaponHook.SetCanShoot(false);
+                }
+            }
+        }
 
-        RaycastWeapon weapon = Instantiate(weaponPrefab, weaponParent).GetComponent<RaycastWeapon>();
+        private void OnShoot(InputValue value)
+        {
+            if (!playerState.isAiming)
+            {
+                return;
+            }
 
-        //LeanTween.alpha(weapon.gameObject, 0, 0);
-        //LeanTween.alpha(weapon.gameObject, 1, .1f);
-        weapon.transform.localPosition = Vector3.zero;
-        weapon.transform.localRotation = Quaternion.identity;
-        equippedWeapon = weapon;
+            if (equippedWeapon != null)
+            {
+                if (value.isPressed)
+                {
+                    equippedWeapon.runtime.weaponHook.SetCanShoot(true);
+                }
+                else
+                {
+                    equippedWeapon.runtime.weaponHook.SetCanShoot(false);
+                }
+            }
+        }
+
+        public void OnEquipPrimary()
+        {
+            EquipWeapon(tempWeapon);
+        }
+
+        public void EquipWeapon(Weapon weapon)
+        {
+            if (equippedWeapon != null)
+            {
+                equippedWeapon.DestroyRuntime();
+                rigAnimator.Play("weapon_unarmed", 0, .1f);
+
+                equippedWeapon = null;
+            }
+            else
+            {
+                rigAnimator.Play(weapon.animationIdleName);
+                weapon.Init(weaponParent, Vector3.zero, Quaternion.identity);
+
+                equippedWeapon = weapon;
+            }
+        }
     }
 }

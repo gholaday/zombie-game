@@ -15,7 +15,6 @@ public class PlayerLocomotion : MonoBehaviour
 
     public Transform[] groundedChecks = new Transform[0];
 
-    //public List<Rig> aimingRigs = new List<Rig>(); //TODO: Move IK logic into its own component
     public Rig bodyAimRig;
 
     [Tooltip("The angle between the player and camera forward vector. Body aim will smooth out when this angle is exceeded. 0 is directly in front, 180 is directly behind")]
@@ -66,20 +65,6 @@ public class PlayerLocomotion : MonoBehaviour
         HandleBufferedInputs();
 
         isAiming = alwaysEnableAim || (InputHandler.Instance.aimHeld && !animator.GetBool("IsDodging"));
-        //isAiming = true;
-        // TODO: Move this to its own class
-
-        //if (equippedWeapon != null)
-        //{
-        //    if (isAiming)
-        //    {
-        //        equippedWeapon.UpdateFiring(Time.deltaTime);
-        //    }
-        //    else
-        //    {
-        //        equippedWeapon.StopFiring();
-        //    }
-        //}
 
         animator.SetBool("IsSprinting", InputHandler.Instance.isSprinting);
         animator.SetBool("IsAiming", isAiming);
@@ -141,29 +126,6 @@ public class PlayerLocomotion : MonoBehaviour
                 bodyAimRig.weight -= Time.deltaTime / 0.3f;
             }
         }
-    }
-
-    private void OnShoot(InputValue value)
-    {
-        if (!isAiming)
-        {
-            return;
-        }
-
-        //if (value.isPressed)
-        //{
-        //    if (equippedWeapon != null)
-        //    {
-        //        equippedWeapon.StartFiring();
-        //    }
-        //}
-        //else
-        //{
-        //    if (equippedWeapon != null)
-        //    {
-        //        equippedWeapon.StopFiring();
-        //    }
-        //}
     }
 
     private void HandleMovement(Vector2 input)

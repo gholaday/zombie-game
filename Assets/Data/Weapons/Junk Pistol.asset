@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 825432e8135ffee409779ba841a1ecf4, type: 3}
+  m_Name: Junk Pistol
+  m_EditorClassIdentifier: 
+  magazineSize: 15
+  fireRate: 3
+  fixedFireRate: 0
+  animationIdleName: weapon_equip_idle_pistol
+  modelPrefab: {fileID: 8078410952196749239, guid: f531175ceaddf3042b3550cc6f95ed3f, type: 3}
+  bulletHolePrefab: {fileID: 9039803480669610885, guid: c1e42b228cb2a524f8f93c5ae5d07961, type: 3}
