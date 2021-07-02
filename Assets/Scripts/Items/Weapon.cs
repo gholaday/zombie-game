@@ -18,6 +18,8 @@ namespace ZombieGame
         [Header("Animation")]
         public string animationIdleName;
 
+        public string animationRecoilName;
+
         [Header("GameObjects")]
         public GameObject modelPrefab;
 

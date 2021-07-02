@@ -46,7 +46,7 @@ public class PlayerLocomotion : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
-        animator = GetComponent<Animator>();
+        animator = GetComponentInParent<Animator>();
         cameraTransform = Camera.main.transform;
     }
 
