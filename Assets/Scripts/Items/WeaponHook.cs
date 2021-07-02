@@ -1,3 +1,4 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -12,12 +13,17 @@ namespace ZombieGame
         public Weapon weaponData;
 
         private ParticleSystem[] weaponParticles;
+        private CinemachineImpulseSource recoilImpulse;
+        private Animator rigAnimator;
+
         private float accumulatedTime;
         private bool canShoot = false;
 
         public void Init()
         {
             weaponParticles = GetComponentsInChildren<ParticleSystem>();
+            recoilImpulse = GetComponent<CinemachineImpulseSource>();
+            rigAnimator = GetComponentInParent<Animator>();
         }
 
         public void Update()
@@ -55,6 +61,8 @@ namespace ZombieGame
                 ps.Play();
             }
 
+            Recoil();
+
             RaycastHit hitInfo;
 
             // Draw ray from camera to get point where crosshair touches
@@ -77,6 +85,19 @@ namespace ZombieGame
                         DrawBulletHole(hitInfo);
                     }
                 }
+            }
+        }
+
+        private void Recoil()
+        {
+            if (recoilImpulse != null)
+            {
+                recoilImpulse.GenerateImpulse(Camera.main.transform.forward);
+            }
+
+            if (rigAnimator != null)
+            {
+                rigAnimator.Play(weaponData.animationRecoilName, 1, 0.0f);
             }
         }
 

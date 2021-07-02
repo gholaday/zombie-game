@@ -16,5 +16,6 @@ MonoBehaviour:
   fireRate: 8
   fixedFireRate: 0
   animationIdleName: weapon_equip_idle_rifle
+  animationRecoilName: weapon_recoil_rifle
   modelPrefab: {fileID: 1660856265888733621, guid: 087e5435e966ea145996e03628adcb1f, type: 3}
   bulletHolePrefab: {fileID: 9039803480669610885, guid: c1e42b228cb2a524f8f93c5ae5d07961, type: 3}
